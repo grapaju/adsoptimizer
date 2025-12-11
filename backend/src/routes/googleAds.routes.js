@@ -11,11 +11,14 @@ import { authMiddleware, managerOnly } from '../middlewares/auth.middleware.js';
 const router = express.Router();
 
 // =============================================================================
-// ROTAS PÚBLICAS (OAuth2 Callback)
+// ROTAS PÚBLICAS (OAuth2)
 // =============================================================================
 
 // Callback do OAuth2 (não requer autenticação JWT)
 router.get('/auth/callback', googleAdsController.authCallback);
+
+// Gerar URL de autorização OAuth2 (público para configuração inicial)
+router.get('/auth/url', googleAdsController.getAuthUrl);
 
 // =============================================================================
 // ROTAS PROTEGIDAS (Requerem autenticação JWT)
@@ -26,9 +29,6 @@ router.use(authMiddleware);
 // -----------------------------------------------------------------------------
 // AUTENTICAÇÃO OAUTH2
 // -----------------------------------------------------------------------------
-
-// Gerar URL de autorização OAuth2
-router.get('/auth/url', googleAdsController.getAuthUrl);
 
 // Conectar conta Google Ads a um cliente
 router.post('/auth/connect', managerOnly, googleAdsController.connectAccount);

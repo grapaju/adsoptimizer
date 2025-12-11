@@ -68,19 +68,20 @@ class GoogleAdsController {
       // Trocar código por tokens
       const tokens = await googleAdsAuthService.exchangeCodeForTokens(code);
 
-      // Buscar contas acessíveis para o usuário escolher
-      const accounts = await googleAdsAuthService.listAccessibleAccounts(tokens.refreshToken);
-
+      // Retornar o refresh token para o usuário copiar
+      // A listagem de contas requer um MCC ID válido configurado
       res.json({
         success: true,
         data: {
-          tokens: {
-            refreshToken: tokens.refreshToken,
-            expiryDate: tokens.expiryDate,
-          },
-          accounts,
+          refreshToken: tokens.refreshToken,
+          expiryDate: tokens.expiryDate,
           state,
-          message: 'Autorização concluída. Selecione a conta Google Ads.',
+          message: 'Autorização concluída! Copie o refreshToken acima e adicione no seu arquivo .env como GOOGLE_ADS_REFRESH_TOKEN',
+          instructions: [
+            '1. Copie o refreshToken acima',
+            '2. Adicione no seu .env: GOOGLE_ADS_REFRESH_TOKEN=seu_token_aqui',
+            '3. Reinicie o servidor backend',
+          ],
         },
       });
     } catch (error) {

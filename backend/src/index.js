@@ -31,7 +31,7 @@ import googleAdsRoutes from './routes/googleAds.routes.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 
 // Importar serviço de socket
-import setupSocket from './services/socket.service.js';
+import socketService from './services/socket.service.js';
 
 // Suporte ESM para __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -119,7 +119,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(errorHandler);
 
 // Configurar Socket.IO para eventos em tempo real
-setupSocket(io);
+socketService.initializeSocket(io);
 
 const PORT = process.env.PORT || 3001;
 
