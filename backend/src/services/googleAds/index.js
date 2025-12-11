@@ -12,3 +12,9 @@ export {
   googleAdsQueryService,
   googleAdsMetricsService,
 };
+
+export default {
+  googleAdsAuthService,
+  googleAdsQueryService,
+  googleAdsMetricsService,
+};
