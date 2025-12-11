@@ -11,13 +11,16 @@ import {
 import { formatCurrency, formatNumber } from '../../utils/format';
 
 const MetricsBarChart = ({
-  data,
+  data = [],
   bars = [],
   height = 300,
   showGrid = true,
   showLegend = true,
   layout = 'horizontal'
 }) => {
+  // Ensure data is an array
+  const chartData = Array.isArray(data) ? data : [];
+  
   const formatTooltipValue = (value, name) => {
     if (name.toLowerCase().includes('cost') || name.toLowerCase().includes('value')) {
       return formatCurrency(value);
@@ -30,7 +33,7 @@ const MetricsBarChart = ({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart 
-        data={data} 
+        data={chartData} 
         layout={layout}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
       >

@@ -12,12 +12,15 @@ import { formatDate } from '../../utils/date';
 import { formatCurrency, formatNumber } from '../../utils/format';
 
 const MetricsLineChart = ({ 
-  data, 
+  data = [], 
   lines = [],
   height = 300,
   showGrid = true,
   showLegend = true 
 }) => {
+  // Ensure data is an array
+  const chartData = Array.isArray(data) ? data : [];
+  
   const formatXAxis = (date) => {
     return formatDate(date, 'dd/MM');
   };
@@ -39,7 +42,7 @@ const MetricsLineChart = ({
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+      <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
         {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
         <XAxis 
           dataKey="date" 

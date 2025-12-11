@@ -11,13 +11,15 @@ export const useDashboardStore = create((set) => ({
     set({ isLoading: true, period });
     try {
       const response = await api.get('/metrics/dashboard/manager', { params: { period } });
+      const data = response.data?.data || response.data;
       set({
-        managerData: response.data,
+        managerData: data,
         isLoading: false
       });
-      return response.data;
+      return data;
     } catch (error) {
-      set({ isLoading: false });
+      console.error('Error fetching manager dashboard:', error);
+      set({ isLoading: false, managerData: {} });
       return null;
     }
   },
@@ -26,13 +28,15 @@ export const useDashboardStore = create((set) => ({
     set({ isLoading: true, period });
     try {
       const response = await api.get('/metrics/dashboard/client', { params: { period } });
+      const data = response.data?.data || response.data;
       set({
-        clientData: response.data,
+        clientData: data,
         isLoading: false
       });
-      return response.data;
+      return data;
     } catch (error) {
-      set({ isLoading: false });
+      console.error('Error fetching client dashboard:', error);
+      set({ isLoading: false, clientData: {} });
       return null;
     }
   },
