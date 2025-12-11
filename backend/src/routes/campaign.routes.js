@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import campaignController from '../controllers/campaign.controller.js';
+import { authMiddleware, managerOnly } from '../middlewares/auth.middleware.js';
+
 const router = express.Router();
-const campaignController = require('../controllers/campaign.controller');
-const { authMiddleware, managerOnly } = require('../middlewares/auth.middleware');
 
 // Todas as rotas requerem autenticação
 router.use(authMiddleware);
@@ -36,4 +37,4 @@ router.post('/:id/sync', campaignController.syncWithGoogleAds);
 // Deletar campanha (apenas gestor)
 router.delete('/:id', managerOnly, campaignController.remove);
 
-module.exports = router;
+export default router;

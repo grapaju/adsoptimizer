@@ -3,9 +3,9 @@
 // Endpoints: GET /campaigns, GET /campaigns/:id, POST /campaigns, PUT /campaigns/:id
 // =============================================================================
 
-const campaignService = require('../services/campaign.service');
-const googleAdsService = require('../services/googleAds.service');
-const historyService = require('../services/history.service');
+import * as campaignService from '../services/campaign.service.js';
+import * as googleAdsService from '../services/googleAds.service.js';
+import * as historyService from '../services/history.service.js';
 
 /**
  * GET /campaigns
@@ -398,7 +398,7 @@ async function getListingGroups(req, res, next) {
   }
 }
 
-module.exports = {
+export default {
   list,
   getById,
   create,

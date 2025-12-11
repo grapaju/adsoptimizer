@@ -3,11 +3,11 @@
  * Exporta todos os serviços de forma centralizada
  */
 
-const googleAdsAuthService = require('./googleAdsAuth.service');
-const googleAdsQueryService = require('./googleAdsQuery.service');
-const googleAdsMetricsService = require('./googleAdsMetrics.service');
+import googleAdsAuthService from './googleAdsAuth.service.js';
+import googleAdsQueryService from './googleAdsQuery.service.js';
+import googleAdsMetricsService from './googleAdsMetrics.service.js';
 
-module.exports = {
+export {
   googleAdsAuthService,
   googleAdsQueryService,
   googleAdsMetricsService,

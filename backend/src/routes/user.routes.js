@@ -3,10 +3,11 @@
  * Para operações de clientes, use /api/clients
  * Este arquivo mantém compatibilidade com código existente
  */
-const express = require('express');
+import express from 'express';
+import userController from '../controllers/user.controller.js';
+import { authMiddleware, managerOnly } from '../middlewares/auth.middleware.js';
+
 const router = express.Router();
-const userController = require('../controllers/user.controller');
-const { authMiddleware, managerOnly } = require('../middlewares/auth.middleware');
 
 // Todas as rotas requerem autenticação
 router.use(authMiddleware);
@@ -29,4 +30,4 @@ router.put('/clients/:clientId', userController.updateClient);
 // Desativar cliente (gestor) - Deprecated: use /api/clients/:id
 router.delete('/clients/:clientId', managerOnly, userController.deactivateClient);
 
-module.exports = router;
+export default router;

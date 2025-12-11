@@ -4,10 +4,11 @@
  * Endpoints para autenticação OAuth2, métricas e dados de campanhas Performance Max
  */
 
-const express = require('express');
+import express from 'express';
+import googleAdsController from '../controllers/googleAds.controller.js';
+import { authMiddleware, managerOnly } from '../middlewares/auth.middleware.js';
+
 const router = express.Router();
-const googleAdsController = require('../controllers/googleAds.controller');
-const { authMiddleware, managerOnly } = require('../middlewares/auth.middleware');
 
 // =============================================================================
 // ROTAS PÚBLICAS (OAuth2 Callback)
@@ -107,4 +108,4 @@ router.get('/campaigns/:campaignId/search-terms/metrics', googleAdsController.ge
 // Limpar cache de queries
 router.post('/cache/clear', managerOnly, googleAdsController.clearCache);
 
-module.exports = router;
+export default router;

@@ -5,7 +5,7 @@
  * incluindo métricas gerais, avançadas, de asset groups e assets
  */
 
-const googleAdsQueryService = require('./googleAdsQuery.service');
+import googleAdsQueryService from './googleAdsQuery.service.js';
 
 class GoogleAdsMetricsService {
   /**
@@ -633,4 +633,4 @@ class GoogleAdsMetricsService {
 }
 
 // Exportar instância singleton
-module.exports = new GoogleAdsMetricsService();
+export default new GoogleAdsMetricsService();

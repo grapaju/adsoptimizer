@@ -2,7 +2,7 @@
 // PRISMA CLIENT - Singleton para conexão com o banco
 // =============================================================================
 
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 // Criar instância única do Prisma Client
 // Em desenvolvimento, evita criar múltiplas conexões com hot reload
@@ -16,4 +16,4 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
 
-module.exports = prisma;
+export default prisma;

@@ -2,7 +2,7 @@
  * Middleware de tratamento de erros
  * Centraliza o tratamento de erros da aplicação
  */
-const { Prisma } = require('@prisma/client');
+import { Prisma } from '@prisma/client';
 
 /**
  * Handler principal de erros
@@ -80,7 +80,7 @@ class AppError extends Error {
   }
 }
 
-module.exports = {
+export {
   errorHandler,
   AppError
 };

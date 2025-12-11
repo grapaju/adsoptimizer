@@ -2,10 +2,11 @@
  * Rotas para gerenciamento de clientes
  * Define endpoints para CRUD de clientes e estatísticas
  */
-const express = require('express');
+import express from 'express';
+import clientController from '../controllers/client.controller.js';
+import { authMiddleware, managerOnly } from '../middlewares/auth.middleware.js';
+
 const router = express.Router();
-const clientController = require('../controllers/client.controller');
-const { authMiddleware, managerOnly } = require('../middlewares/auth.middleware');
 
 // Todas as rotas requerem autenticação
 router.use(authMiddleware);
@@ -28,4 +29,4 @@ router.put('/:id', managerOnly, clientController.update);
 // Deletar cliente (apenas gestor)
 router.delete('/:id', managerOnly, clientController.remove);
 
-module.exports = router;
+export default router;

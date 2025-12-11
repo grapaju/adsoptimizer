@@ -3,8 +3,8 @@
  * Gerencia operações relacionadas a usuários (clientes e gestores)
  * Nota: Para operações de CRUD de clientes, use o ClientController
  */
-const prisma = require('../lib/prisma');
-const bcrypt = require('bcryptjs');
+import prisma from '../lib/prisma.js';
+import bcrypt from 'bcryptjs';
 
 class UserController {
   /**
@@ -331,4 +331,4 @@ class UserController {
   }
 }
 
-module.exports = new UserController();
+export default new UserController();

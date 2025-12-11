@@ -2,8 +2,8 @@
  * Middleware de autenticação e autorização
  * Verifica JWT tokens e controla acesso baseado em roles
  */
-const jwt = require('jsonwebtoken');
-const prisma = require('../lib/prisma');
+import jwt from 'jsonwebtoken';
+import prisma from '../lib/prisma.js';
 
 /**
  * Middleware principal de autenticação
@@ -149,7 +149,7 @@ const campaignAccess = async (req, res, next) => {
   }
 };
 
-module.exports = {
+export {
   authMiddleware,
   managerOnly,
   clientOnly,

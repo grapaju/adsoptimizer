@@ -1,6 +1,7 @@
 {
   "name": "ads-optimizer-backend",
   "version": "1.0.0",
+  "type": "module",
   "description": "Backend para sistema de otimização de campanhas Google Ads Performance Max",
   "main": "src/index.js",
   "scripts": {

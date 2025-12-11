@@ -2,10 +2,11 @@
  * Rotas para métricas e dashboards
  * Define endpoints para métricas de campanhas e dashboards
  */
-const express = require('express');
+import express from 'express';
+import metricsController from '../controllers/metrics.controller.js';
+import { authMiddleware, managerOnly } from '../middlewares/auth.middleware.js';
+
 const router = express.Router();
-const metricsController = require('../controllers/metrics.controller');
-const { authMiddleware, managerOnly } = require('../middlewares/auth.middleware');
 
 // Todas as rotas requerem autenticação
 router.use(authMiddleware);
@@ -28,4 +29,4 @@ router.get('/campaign/:campaignId/compare', metricsController.compareMetrics);
 // Sincronizar métricas com Google Ads
 router.post('/sync/:campaignId', managerOnly, metricsController.sync);
 
-module.exports = router;
+export default router;

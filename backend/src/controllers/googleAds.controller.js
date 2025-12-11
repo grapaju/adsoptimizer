@@ -4,12 +4,12 @@
  * Endpoints para autenticação OAuth2, busca de métricas e dados de campanhas
  */
 
-const {
+import {
   googleAdsAuthService,
   googleAdsQueryService,
   googleAdsMetricsService,
-} = require('../services/googleAds');
-const prisma = require('../lib/prisma');
+} from '../services/googleAds/index.js';
+import prisma from '../lib/prisma.js';
 
 class GoogleAdsController {
   // ==========================================================================
@@ -679,4 +679,4 @@ class GoogleAdsController {
   }
 }
 
-module.exports = new GoogleAdsController();
+export default new GoogleAdsController();

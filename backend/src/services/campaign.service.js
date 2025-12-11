@@ -3,7 +3,7 @@
 // CRUD completo de campanhas Performance Max
 // =============================================================================
 
-const prisma = require('../lib/prisma');
+import prisma from '../lib/prisma.js';
 
 /**
  * Lista todas as campanhas (filtradas por gestor ou cliente)
@@ -357,7 +357,7 @@ async function getHistory(campaignId, user) {
   return history;
 }
 
-module.exports = {
+export {
   getAll,
   getById,
   create,

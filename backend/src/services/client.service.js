@@ -3,7 +3,7 @@
 // CRUD completo de clientes vinculados ao gestor
 // =============================================================================
 
-const prisma = require('../lib/prisma');
+import prisma from '../lib/prisma.js';
 
 /**
  * Lista todos os clientes do gestor
@@ -298,7 +298,7 @@ async function getStats(clientId, managerId) {
   };
 }
 
-module.exports = {
+export default {
   getAll,
   getById,
   create,

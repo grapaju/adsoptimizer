@@ -11,9 +11,9 @@
  * 5. Configurar as variáveis de ambiente no .env
  */
 
-const { GoogleAdsApi } = require('google-ads-api');
-const { OAuth2Client } = require('google-auth-library');
-const prisma = require('../../lib/prisma');
+import { GoogleAdsApi } from 'google-ads-api';
+import { OAuth2Client } from 'google-auth-library';
+import prisma from '../../lib/prisma.js';
 
 class GoogleAdsAuthService {
   constructor() {
@@ -341,4 +341,4 @@ class GoogleAdsAuthService {
 }
 
 // Exportar instância singleton
-module.exports = new GoogleAdsAuthService();
+export default new GoogleAdsAuthService();

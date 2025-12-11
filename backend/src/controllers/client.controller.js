@@ -3,7 +3,7 @@
 // Endpoints: GET /clients, GET /clients/:id, POST /clients, PUT /clients/:id
 // =============================================================================
 
-const clientService = require('../services/client.service');
+import clientService from '../services/client.service.js';
 
 /**
  * GET /clients
@@ -188,7 +188,7 @@ async function getStats(req, res, next) {
 async function getCampaigns(req, res, next) {
   try {
     const { id } = req.params;
-    const campaignService = require('../services/campaign.service');
+    const campaignService = await import('../services/campaign.service.js');
     
     const campaigns = await campaignService.getByClient(parseInt(id));
 
@@ -201,7 +201,7 @@ async function getCampaigns(req, res, next) {
   }
 }
 
-module.exports = {
+export {
   list,
   getById,
   create,

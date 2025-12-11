@@ -3,9 +3,9 @@
 // Gerencia login, registro e validação de tokens JWT
 // =============================================================================
 
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const prisma = require('../lib/prisma');
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import prisma from '../lib/prisma.js';
 
 // Configurações do JWT
 const JWT_SECRET = process.env.JWT_SECRET || 'sua-chave-secreta-aqui';
@@ -231,7 +231,7 @@ async function changePassword(userId, currentPassword, newPassword) {
   });
 }
 
-module.exports = {
+export {
   register,
   login,
   verifyToken,

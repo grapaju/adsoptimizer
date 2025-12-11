@@ -3,11 +3,11 @@
 // Define endpoints REST para gerenciamento de alertas
 // =============================================================================
 
-import { Router } from 'express';
+import express from 'express';
 import * as alertController from '../controllers/alert.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 
-const router = Router();
+const router = express.Router();
 
 // Todas as rotas requerem autenticação
 router.use(authMiddleware);

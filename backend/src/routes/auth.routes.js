@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import authController from '../controllers/auth.controller.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+
 const router = express.Router();
-const authController = require('../controllers/auth.controller');
-const { authMiddleware } = require('../middlewares/auth.middleware');
 
 // Rotas públicas
 router.post('/register', authController.register);
@@ -12,4 +13,4 @@ router.get('/me', authMiddleware, authController.me);
 router.put('/profile', authMiddleware, authController.updateProfile);
 router.post('/refresh', authMiddleware, authController.refreshToken);
 
-module.exports = router;
+export default router;

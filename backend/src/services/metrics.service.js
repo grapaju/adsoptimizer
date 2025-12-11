@@ -3,8 +3,8 @@
 // Gerencia histórico, agregações e sincronização
 // =============================================================================
 
-const prisma = require('../lib/prisma');
-const googleAdsService = require('./googleAds.service');
+import prisma from '../lib/prisma.js';
+import * as googleAdsService from './googleAds.service.js';
 
 /**
  * Sincroniza métricas de uma campanha com o Google Ads
@@ -626,7 +626,7 @@ async function storeHistoricalMetrics(campaignId, metricsData) {
   return metric;
 }
 
-module.exports = {
+export default {
   syncCampaign,
   generateSimulatedMetrics,
   getDailyMetrics,

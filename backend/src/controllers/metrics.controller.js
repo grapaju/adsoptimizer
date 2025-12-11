@@ -3,8 +3,8 @@
 // Endpoints: GET /metrics/daily/:campaignId, GET /metrics/realtime/:campaignId
 // =============================================================================
 
-const metricsService = require('../services/metrics.service');
-const prisma = require('../lib/prisma');
+import metricsService from '../services/metrics.service.js';
+import prisma from '../lib/prisma.js';
 
 /**
  * GET /metrics/daily/:campaignId
@@ -308,7 +308,7 @@ async function compareMetrics(req, res, next) {
   }
 }
 
-module.exports = {
+export {
   getDaily,
   getRealtime,
   sync,

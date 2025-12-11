@@ -2,32 +2,40 @@
  * Arquivo principal do servidor
  * Configura Express, Socket.IO e inicializa a aplicação
  */
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const http = require('http');
-const path = require('path');
-const { Server } = require('socket.io');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import http from 'http';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { Server } from 'socket.io';
 
 // Importar cliente Prisma
-const prisma = require('./lib/prisma');
+import prisma from './lib/prisma.js';
 
 // Importar rotas
-const authRoutes = require('./routes/auth.routes');
-const campaignRoutes = require('./routes/campaign.routes');
-const metricsRoutes = require('./routes/metrics.routes');
-const chatRoutes = require('./routes/chat.routes');
-const alertRoutes = require('./routes/alert.routes');
-const historyRoutes = require('./routes/history.routes');
-const aiRoutes = require('./routes/ai.routes');
-const clientRoutes = require('./routes/client.routes');
-const userRoutes = require('./routes/user.routes');
-const googleAdsRoutes = require('./routes/googleAds.routes');
+import authRoutes from './routes/auth.routes.js';
+import campaignRoutes from './routes/campaign.routes.js';
+import metricsRoutes from './routes/metrics.routes.js';
+import chatRoutes from './routes/chat.routes.js';
+import alertRoutes from './routes/alert.routes.js';
+import historyRoutes from './routes/history.routes.js';
+import aiRoutes from './routes/ai.routes.js';
+import clientRoutes from './routes/client.routes.js';
+import userRoutes from './routes/user.routes.js';
+import googleAdsRoutes from './routes/googleAds.routes.js';
 
 // Importar middlewares
-const { errorHandler } = require('./middlewares/error.middleware');
+import { errorHandler } from './middlewares/error.middleware.js';
+
+// Importar serviço de socket
+import setupSocket from './services/socket.service.js';
+
+// Suporte ESM para __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
@@ -111,7 +119,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(errorHandler);
 
 // Configurar Socket.IO para eventos em tempo real
-require('./services/socket.service')(io);
+setupSocket(io);
 
 const PORT = process.env.PORT || 3001;
 
@@ -136,4 +144,4 @@ server.listen(PORT, () => {
   console.log(`🔌 Socket.IO configurado para chat em tempo real`);
 });
 
-module.exports = { app, io };
+export { app, io };

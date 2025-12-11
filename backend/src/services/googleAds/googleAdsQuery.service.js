@@ -7,7 +7,8 @@
  * Documentação GAQL: https://developers.google.com/google-ads/api/docs/query/overview
  */
 
-const googleAdsAuthService = require('./googleAdsAuth.service');
+import googleAdsAuthService from './googleAdsAuth.service.js';
+import crypto from 'crypto';
 
 class GoogleAdsQueryService {
   constructor() {
@@ -331,7 +332,6 @@ class GoogleAdsQueryService {
    * @private
    */
   _generateCacheKey(customerId, query) {
-    const crypto = require('crypto');
     const hash = crypto.createHash('md5').update(query).digest('hex');
     return `${customerId}_${hash}`;
   }
@@ -384,4 +384,4 @@ class GoogleAdsQueryService {
 }
 
 // Exportar instância singleton
-module.exports = new GoogleAdsQueryService();
+export default new GoogleAdsQueryService();

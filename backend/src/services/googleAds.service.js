@@ -3,8 +3,8 @@
 // Gerencia a comunicação com a API do Google Ads para campanhas Performance Max
 // =============================================================================
 
-const { GoogleAdsApi } = require('google-ads-api');
-const prisma = require('../lib/prisma');
+import { GoogleAdsApi } from 'google-ads-api';
+import prisma from '../lib/prisma.js';
 
 /**
  * Cliente Google Ads configurado
@@ -564,7 +564,7 @@ async function syncMetrics(clientId) {
   }
 }
 
-module.exports = {
+export {
   getCustomer,
   getPerformanceMaxCampaigns,
   getCampaignMetrics,

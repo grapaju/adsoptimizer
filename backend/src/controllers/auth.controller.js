@@ -3,7 +3,7 @@
 // Endpoints: POST /auth/login, POST /auth/register, GET /auth/me
 // =============================================================================
 
-const authService = require('../services/auth.service');
+import * as authService from '../services/auth.service.js';
 
 /**
  * POST /auth/login
@@ -173,7 +173,7 @@ async function refreshToken(req, res, next) {
   }
 }
 
-module.exports = {
+export default {
   login,
   register,
   me,

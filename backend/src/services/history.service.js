@@ -3,7 +3,7 @@
 // Registra e consulta todas as alterações feitas em campanhas
 // =============================================================================
 
-const prisma = require('../lib/prisma');
+import prisma from '../lib/prisma.js';
 
 /**
  * Registra uma alteração no histórico
@@ -269,7 +269,7 @@ const CHANGE_TYPES = {
   OTHER: 'Outra alteração',
 };
 
-module.exports = {
+export {
   logChange,
   listHistory,
   getCampaignHistory,
