@@ -90,7 +90,12 @@ app.get('/api/health', async (req, res) => {
 // =============================================================================
 if (process.env.NODE_ENV === 'production') {
   // Servir arquivos estáticos do frontend
-  const frontendPath = path.join(__dirname, '../../frontend/dist');
+  // Caminho relativo quando executado da raiz: ./frontend/dist
+  // Caminho relativo quando executado do backend: ../frontend/dist
+  const frontendPath = path.resolve(__dirname, '../../frontend/dist');
+  
+  console.log('📁 Servindo frontend de:', frontendPath);
+  
   app.use(express.static(frontendPath));
   
   // Qualquer rota não-API retorna o index.html (SPA)
