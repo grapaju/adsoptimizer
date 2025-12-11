@@ -3,7 +3,7 @@
  * Define endpoints para métricas de campanhas e dashboards
  */
 import express from 'express';
-import metricsController from '../controllers/metrics.controller.js';
+import * as metricsController from '../controllers/metrics.controller.js';
 import { authMiddleware, managerOnly } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
