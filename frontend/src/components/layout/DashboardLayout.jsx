@@ -24,19 +24,22 @@ const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const { user, logout } = useAuthStore();
-  const { unreadAlerts, fetchUnreadAlerts, addAlert } = useAlertStore();
+  const { alerts, fetchAlerts } = useAlertStore();
   const { unreadCount, fetchUnreadCount, addMessage } = useChatStore();
   const navigate = useNavigate();
 
-  const isManager = user?.role === 'manager';
+  const isManager = user?.role?.toUpperCase() === 'MANAGER';
   const basePath = isManager ? '/manager' : '/client';
+
+  // Count unread alerts safely
+  const unreadAlertsCount = Array.isArray(alerts) ? alerts.filter(a => !a.isRead).length : 0;
 
   const navigation = [
     { name: 'Dashboard', href: `${basePath}/dashboard`, icon: LayoutDashboard },
     ...(isManager ? [{ name: 'Clientes', href: `${basePath}/clients`, icon: Users }] : []),
     { name: 'Campanhas', href: `${basePath}/campaigns`, icon: Target },
-    { name: 'Chat', href: `${basePath}/chat`, icon: MessageSquare, badge: unreadCount },
-    { name: 'Alertas', href: `${basePath}/alerts`, icon: Bell, badge: unreadAlerts.length },
+    { name: 'Chat', href: `${basePath}/chat`, icon: MessageSquare, badge: unreadCount || 0 },
+    { name: 'Alertas', href: `${basePath}/alerts`, icon: Bell, badge: unreadAlertsCount },
     { name: 'Histórico', href: `${basePath}/history`, icon: History },
     { name: 'IA & Recomendações', href: `${basePath}/ai`, icon: Sparkles },
   ];
@@ -50,15 +53,10 @@ const DashboardLayout = () => {
       socketService.onNewMessage((message) => {
         addMessage(message);
       });
-
-      // Listen for new alerts
-      socketService.onNewAlert((alert) => {
-        addAlert(alert);
-      });
     }
 
     // Fetch initial data
-    fetchUnreadAlerts();
+    fetchAlerts();
     fetchUnreadCount();
 
     return () => {
