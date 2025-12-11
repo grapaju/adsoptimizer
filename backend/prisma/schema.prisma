@@ -1,0 +1,473 @@
+// =============================================================================
+// PRISMA SCHEMA - AdsOptimizer
+// Define a estrutura do banco de dados PostgreSQL
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// ENUMS - Tipos enumerados para campos específicos
+// =============================================================================
+
+// Papel do usuário no sistema
+enum UserRole {
+  MANAGER  // Gestor de tráfego - acesso total
+  CLIENT   // Cliente - acesso restrito às suas campanhas
+}
+
+// Status da campanha no Google Ads
+enum CampaignStatus {
+  ENABLED   // Campanha ativa
+  PAUSED    // Campanha pausada
+  REMOVED   // Campanha removida
+}
+
+// Tipo de alerta gerado pelo sistema
+enum AlertType {
+  ROAS_DROP          // Queda no ROAS
+  ROAS_INCREASE      // Aumento significativo no ROAS
+  CPA_HIGH           // CPA acima da meta
+  BUDGET_LOSS        // Perda de impressão por orçamento > 40%
+  RANKING_LOSS       // Perda de impressão por ranking > 50%
+  CTR_DECLINE        // CTR caindo semana a semana
+  BURN_RATE          // Burn rate exagerado (gastando rápido demais)
+  BUDGET_EXCEEDED    // Orçamento excedido
+  CONVERSION_DROP    // Queda nas conversões
+  CLICKS_ANOMALY     // Anomalia nos cliques
+  COST_SPIKE         // Pico de custo
+  PERFORMANCE_ALERT  // Alerta geral de performance
+}
+
+// Prioridade do alerta
+enum AlertPriority {
+  LOW      // Baixa prioridade
+  MEDIUM   // Média prioridade
+  HIGH     // Alta prioridade
+  CRITICAL // Crítico - ação imediata necessária
+}
+
+// Status do alerta
+enum AlertStatus {
+  ACTIVE       // Alerta ativo, precisa de atenção
+  ACKNOWLEDGED // Reconhecido pelo usuário
+  RESOLVED     // Problema resolvido
+  DISMISSED    // Descartado pelo usuário
+}
+
+// Status da recomendação de IA
+enum RecommendationStatus {
+  PENDING   // Aguardando ação
+  APPLIED   // Aplicada pelo gestor
+  REJECTED  // Rejeitada pelo gestor
+  EXPIRED   // Expirada (não mais relevante)
+}
+
+// Tipo de recomendação de IA
+enum RecommendationType {
+  BUDGET      // Ajuste de orçamento
+  BIDDING     // Estratégia de lances
+  TARGETING   // Segmentação de público
+  CREATIVE    // Melhoria de criativos
+  KEYWORD     // Palavras-chave
+  GENERAL     // Recomendação geral
+}
+
+// =============================================================================
+// TABELA: users
+// Armazena gestores e clientes do sistema
+// =============================================================================
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String   // Hash bcrypt
+  name      String
+  role      UserRole @default(CLIENT)
+  company   String?  // Nome da empresa (opcional)
+  phone     String?  // Telefone (opcional)
+  avatar    String?  // URL do avatar (opcional)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  managedClients     Client[]           @relation("ManagerClients") // Clientes que o gestor gerencia
+  campaigns          Campaign[]         // Campanhas criadas pelo gestor
+  sentMessages       ChatMessage[]      @relation("SentMessages")
+  managerConversations ChatConversation[] @relation("ManagerConversations")
+  alerts             Alert[]
+  recommendations    Recommendation[]
+  changeHistory      ChangeHistory[]
+  auditLogs          AuditLog[]
+
+  @@map("users")
+}
+
+// =============================================================================
+// TABELA: clients
+// Clientes gerenciados pelos gestores
+// =============================================================================
+model Client {
+  id                    Int       @id @default(autoincrement())
+  name                  String
+  email                 String    @unique
+  phone                 String?
+  company               String?
+  googleAdsId           String?   // ID da conta Google Ads do cliente (formato: XXX-XXX-XXXX)
+  googleAdsRefreshToken String?   // Refresh token do Google Ads OAuth2
+  googleAdsTokenExpiry  DateTime? // Data de expiração do token
+  isActive              Boolean   @default(true)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relacionamento com o gestor responsável
+  managerId Int
+  manager   User @relation("ManagerClients", fields: [managerId], references: [id])
+
+  // Campanhas do cliente
+  campaigns Campaign[]
+
+  // Conversas do chat
+  conversations ChatConversation[]
+
+  @@map("clients")
+}
+
+// =============================================================================
+// TABELA: campaigns
+// Campanhas Google Ads Performance Max
+// =============================================================================
+model Campaign {
+  id               Int            @id @default(autoincrement())
+  googleCampaignId String         @unique // ID da campanha no Google Ads
+  name             String
+  status           CampaignStatus @default(ENABLED)
+  budgetDaily      Decimal        @db.Decimal(10, 2) // Orçamento diário
+  targetRoas       Decimal?       @db.Decimal(5, 2)  // ROAS alvo
+  biddingStrategy  String?        // Estratégia de lances
+  startDate        DateTime?
+  endDate          DateTime?
+  lastSyncAt       DateTime?      // Última sincronização com Google Ads
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  // Relacionamentos
+  clientId Int
+  client   Client @relation(fields: [clientId], references: [id])
+
+  createdById Int
+  createdBy   User @relation(fields: [createdById], references: [id])
+
+  // Dados relacionados
+  metrics         CampaignMetric[]
+  assetGroups     AssetGroup[]
+  searchTerms     SearchTerm[]
+  listingGroups   ListingGroup[]
+  alerts          Alert[]
+  recommendations Recommendation[]
+  changeHistory   ChangeHistory[]
+  auditLogs       AuditLog[]
+
+  @@map("campaigns")
+}
+
+// =============================================================================
+// TABELA: campaign_metrics
+// Histórico de métricas diárias das campanhas
+// =============================================================================
+model CampaignMetric {
+  id              Int      @id @default(autoincrement())
+  date            DateTime @db.Date // Data da métrica
+  impressions     Int      @default(0)
+  clicks          Int      @default(0)
+  cost            Decimal  @db.Decimal(10, 2) @default(0)
+  conversions     Decimal  @db.Decimal(10, 2) @default(0)
+  conversionValue Decimal  @db.Decimal(12, 2) @default(0)
+  ctr             Decimal  @db.Decimal(5, 4) @default(0) // Click-through rate
+  cpc             Decimal  @db.Decimal(10, 2) @default(0) // Custo por clique
+  roas            Decimal  @db.Decimal(8, 2) @default(0) // Return on ad spend
+  createdAt       DateTime @default(now())
+
+  // Relacionamento
+  campaignId Int
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  // Índice único para evitar duplicatas
+  @@unique([campaignId, date])
+  @@map("campaign_metrics")
+}
+
+// =============================================================================
+// TABELA: asset_groups
+// Grupos de ativos das campanhas Performance Max
+// =============================================================================
+model AssetGroup {
+  id               Int      @id @default(autoincrement())
+  googleAssetId    String   @unique // ID no Google Ads
+  name             String
+  status           String   @default("ENABLED")
+  finalUrl         String?  // URL de destino
+  headlines        Json?    // Array de títulos (máx 15)
+  descriptions     Json?    // Array de descrições (máx 4)
+  images           Json?    // Array de URLs de imagens
+  logos            Json?    // Array de URLs de logos
+  videos           Json?    // Array de URLs de vídeos
+  performanceLabel String?  // LOW, LEARNING, GOOD, BEST
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relacionamento
+  campaignId Int
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("asset_groups")
+}
+
+// =============================================================================
+// TABELA: search_terms
+// Termos de pesquisa que acionaram os anúncios
+// =============================================================================
+model SearchTerm {
+  id          Int      @id @default(autoincrement())
+  term        String   // Termo de pesquisa
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  cost        Decimal  @db.Decimal(10, 2) @default(0)
+  conversions Decimal  @db.Decimal(10, 2) @default(0)
+  date        DateTime @db.Date
+  createdAt   DateTime @default(now())
+
+  // Relacionamento
+  campaignId Int
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("search_terms")
+}
+
+// =============================================================================
+// TABELA: listing_groups
+// Grupos de listagem (para Shopping)
+// =============================================================================
+model ListingGroup {
+  id              Int      @id @default(autoincrement())
+  googleListingId String   @unique // ID no Google Ads
+  name            String
+  type            String   // UNIT_INCLUDED, UNIT_EXCLUDED, SUBDIVISION
+  status          String   @default("ENABLED")
+  impressions     Int      @default(0)
+  clicks          Int      @default(0)
+  cost            Decimal  @db.Decimal(10, 2) @default(0)
+  conversions     Decimal  @db.Decimal(10, 2) @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relacionamento
+  campaignId Int
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("listing_groups")
+}
+
+// =============================================================================
+// TABELA: alerts
+// Alertas inteligentes gerados pelo sistema
+// =============================================================================
+model Alert {
+  id           Int           @id @default(autoincrement())
+  type         AlertType
+  priority     AlertPriority @default(MEDIUM)
+  status       AlertStatus   @default(ACTIVE)
+  title        String
+  message      String
+  data         Json?         // Dados adicionais (valores, thresholds, métricas)
+  threshold    Float?        // Valor do threshold que foi ultrapassado
+  currentValue Float?        // Valor atual da métrica
+  previousValue Float?       // Valor anterior (para comparação)
+  isRead       Boolean       @default(false)
+  readAt       DateTime?
+  resolvedAt   DateTime?
+  emailSent    Boolean       @default(false) // Se o email foi enviado
+  chatSent     Boolean       @default(false) // Se foi enviado no chat
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relacionamentos
+  campaignId Int
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  @@index([campaignId, status])
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("alerts")
+}
+
+// =============================================================================
+// TABELA: recommendations
+// Recomendações geradas pela IA
+// =============================================================================
+model Recommendation {
+  id             Int                  @id @default(autoincrement())
+  type           RecommendationType
+  status         RecommendationStatus @default(PENDING)
+  title          String
+  description    String
+  details        Json?                // Detalhes da recomendação
+  expectedImpact String?              // Impacto esperado
+  priority       AlertPriority        @default(MEDIUM)
+  appliedAt      DateTime?
+  rejectedAt     DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  // Relacionamentos
+  campaignId Int
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  @@map("recommendations")
+}
+
+// =============================================================================
+// TABELA: chat_conversations
+// Conversas do chat interno entre gestor e cliente
+// =============================================================================
+model ChatConversation {
+  id            Int       @id @default(autoincrement())
+  lastMessageAt DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Participantes
+  managerId Int
+  manager   User @relation("ManagerConversations", fields: [managerId], references: [id])
+
+  clientId Int
+  client   Client @relation(fields: [clientId], references: [id])
+
+  // Mensagens da conversa
+  messages ChatMessage[]
+
+  @@unique([managerId, clientId])
+  @@map("chat_conversations")
+}
+
+// =============================================================================
+// TABELA: chat_messages
+// Mensagens do chat interno entre gestor e cliente
+// =============================================================================
+model ChatMessage {
+  id        Int       @id @default(autoincrement())
+  content   String
+  type      MessageType @default(TEXT)
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  // Anexo (para imagens e arquivos)
+  attachmentUrl  String?
+  attachmentName String?
+  attachmentType String?
+  attachmentSize Int?
+
+  // Remetente (usuário do sistema)
+  senderId Int
+  sender   User @relation("SentMessages", fields: [senderId], references: [id])
+
+  // Conversa à qual pertence
+  conversationId Int
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+// Tipo de entidade para auditoria
+enum AuditEntityType {
+  CAMPAIGN       // Campanha
+  ASSET_GROUP    // Grupo de ativos
+  BUDGET         // Orçamento
+  TARGET         // Metas (ROAS/CPA)
+  RECOMMENDATION // Recomendação de IA
+  USER           // Usuário
+  CLIENT         // Cliente
+  ALERT          // Alerta
+}
+
+// Tipo de ação para auditoria
+enum AuditAction {
+  CREATE         // Criação
+  UPDATE         // Atualização
+  DELETE         // Exclusão
+  STATUS_CHANGE  // Mudança de status
+  APPROVE        // Aprovação (ex: recomendação IA)
+  REJECT         // Rejeição
+  SYNC           // Sincronização com Google Ads
+}
+
+// =============================================================================
+// TABELA: audit_logs
+// Log de auditoria para todas as alterações do sistema
+// =============================================================================
+model AuditLog {
+  id            Int             @id @default(autoincrement())
+  entityType    AuditEntityType // Tipo de entidade alterada
+  entityId      Int             // ID da entidade
+  entityName    String?         // Nome da entidade (para exibição)
+  action        AuditAction     // Tipo de ação
+  description   String          // Descrição legível da alteração
+  changes       Json?           // Detalhes das mudanças { field, oldValue, newValue }
+  metadata      Json?           // Dados adicionais (IP, user-agent, etc)
+  createdAt     DateTime        @default(now())
+
+  // Relacionamentos
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  campaignId Int?
+  campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([campaignId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// =============================================================================
+// TABELA: change_history (mantido para compatibilidade)
+// Histórico de todas as alterações nas campanhas
+// =============================================================================
+model ChangeHistory {
+  id          Int      @id @default(autoincrement())
+  action      String   // budget_change, status_change, etc
+  description String
+  oldValue    Json?    // Valor anterior
+  newValue    Json?    // Novo valor
+  createdAt   DateTime @default(now())
+
+  // Relacionamentos
+  campaignId Int
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  @@map("change_history")
+}
