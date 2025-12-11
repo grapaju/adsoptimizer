@@ -6,11 +6,18 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
+    "build": "npm run db:generate && cd ../frontend && npm install && npm run build",
+    "build:frontend": "cd ../frontend && npm install && npm run build",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "node prisma/seed.js",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": ["google-ads", "performance-max", "optimization"],
   "author": "",
@@ -29,7 +36,9 @@
     "google-auth-library": "^9.4.1",
     "helmet": "^7.1.0",
     "morgan": "^1.10.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.7"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",

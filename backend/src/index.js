@@ -8,6 +8,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const http = require('http');
+const path = require('path');
 const { Server } = require('socket.io');
 
 // Importar cliente Prisma
@@ -82,6 +83,24 @@ app.get('/api/health', async (req, res) => {
     });
   }
 });
+
+// =============================================================================
+// SERVIR FRONTEND EM PRODUÇÃO
+// O backend serve os arquivos estáticos do frontend buildado
+// =============================================================================
+if (process.env.NODE_ENV === 'production') {
+  // Servir arquivos estáticos do frontend
+  const frontendPath = path.join(__dirname, '../../frontend/dist');
+  app.use(express.static(frontendPath));
+  
+  // Qualquer rota não-API retorna o index.html (SPA)
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
 
 // Middleware de tratamento de erros (deve ser o último)
 app.use(errorHandler);

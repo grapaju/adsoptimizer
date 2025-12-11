@@ -10,7 +10,10 @@ class SocketService {
   connect(token) {
     if (this.socket?.connected) return;
 
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
+    // Em produção, usa a mesma URL do site (backend servindo frontend)
+    // Em desenvolvimento, usa localhost:3001
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 
+      (import.meta.env.PROD ? window.location.origin : 'http://localhost:3001');
     
     this.socket = io(socketUrl, {
       transports: ['websocket', 'polling'],
