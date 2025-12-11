@@ -9,13 +9,23 @@
  * - generateAdVariations: Criar 5 variações de anúncios
  */
 
-import openai, { config } from './openai.config.js';
+import { openai, config, isAIEnabled } from './openai.config.js';
 import { 
   CAMPAIGN_DIAGNOSIS_PROMPT,
   AD_GENERATION_PROMPT,
   ASSET_REWRITE_PROMPT,
   IMAGE_ANALYSIS_PROMPT
 } from './prompts.js';
+
+// =============================================================================
+// HELPER - Verificar se IA está disponível
+// =============================================================================
+
+function checkAIEnabled() {
+  if (!isAIEnabled || !openai) {
+    throw new Error('Funcionalidades de IA não estão disponíveis. Configure OPENAI_API_KEY nas variáveis de ambiente.');
+  }
+}
 
 // =============================================================================
 // 1. DIAGNÓSTICO COMPLETO DE CAMPANHAS PMAX
@@ -45,6 +55,8 @@ import {
  * @returns {Promise<Object>} Diagnóstico completo com recomendações
  */
 export async function generatePmaxRecommendations(metrics, assetGroups = [], listingGroups = [], searchTerms = []) {
+  checkAIEnabled();
+  
   try {
     // Preparar contexto detalhado para a IA
     const campaignContext = buildCampaignContext(metrics, assetGroups, listingGroups, searchTerms);

@@ -4,7 +4,7 @@
  */
 
 // Configuração OpenAI
-export { openai, config, checkOpenAIConnection } from './openai.config.js';
+export { openai, config, checkOpenAIConnection, isAIEnabled } from './openai.config.js';
 
 // Prompts
 export {

@@ -25,14 +25,19 @@
 import OpenAI from 'openai';
 
 // Verificar se a API key está configurada
-if (!process.env.OPENAI_API_KEY) {
+const hasApiKey = !!process.env.OPENAI_API_KEY;
+
+if (!hasApiKey) {
   console.warn('⚠️ OPENAI_API_KEY não configurada. Funcionalidades de IA estarão desabilitadas.');
 }
 
-// Instância do cliente OpenAI
-export const openai = new OpenAI({
+// Instância do cliente OpenAI (só cria se tiver API key)
+export const openai = hasApiKey ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-});
+}) : null;
+
+// Flag para verificar se IA está disponível
+export const isAIEnabled = hasApiKey;
 
 // Configurações padrão
 export const config = {
@@ -57,7 +62,7 @@ export const config = {
  */
 export const checkOpenAIConnection = async () => {
   try {
-    if (!process.env.OPENAI_API_KEY) {
+    if (!isAIEnabled || !openai) {
       return { connected: false, error: 'API key não configurada' };
     }
     
