@@ -240,3 +240,13 @@ export {
   updateProfile,
   changePassword,
 };
+
+export default {
+  register,
+  login,
+  verifyToken,
+  generateToken,
+  getUserById,
+  updateProfile,
+  changePassword,
+};

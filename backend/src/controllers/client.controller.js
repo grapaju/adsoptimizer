@@ -210,3 +210,13 @@ export {
   getStats,
   getCampaigns,
 };
+
+export default {
+  list,
+  getById,
+  create,
+  update,
+  remove,
+  getStats,
+  getCampaigns,
+};

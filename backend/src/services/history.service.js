@@ -276,3 +276,11 @@ export {
   getStats,
   CHANGE_TYPES,
 };
+
+export default {
+  logChange,
+  listHistory,
+  getCampaignHistory,
+  getStats,
+  CHANGE_TYPES,
+};

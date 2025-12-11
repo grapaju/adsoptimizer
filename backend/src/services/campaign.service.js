@@ -365,3 +365,12 @@ export {
   remove,
   getHistory,
 };
+
+export default {
+  getAll,
+  getById,
+  create,
+  update,
+  remove,
+  getHistory,
+};

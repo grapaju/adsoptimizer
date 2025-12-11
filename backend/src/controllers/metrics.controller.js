@@ -316,3 +316,12 @@ export {
   getClientDashboard,
   compareMetrics,
 };
+
+export default {
+  getDaily,
+  getRealtime,
+  sync,
+  getManagerDashboard,
+  getClientDashboard,
+  compareMetrics,
+};

@@ -576,3 +576,16 @@ export {
   syncCampaigns,
   syncMetrics,
 };
+
+export default {
+  getCustomer,
+  getPerformanceMaxCampaigns,
+  getCampaignMetrics,
+  getAssetGroups,
+  getAssetGroupAssets,
+  getSearchTerms,
+  getListingGroups,
+  getRecommendations,
+  syncCampaigns,
+  syncMetrics,
+};
