@@ -98,7 +98,10 @@ async function getManagerDashboard(req, res, next) {
     const campaigns = await prisma.campaign.findMany({
       where: { clientId: { in: clientIds } },
       include: {
-        currentMetrics: true,
+        metrics: {
+          orderBy: { date: 'desc' },
+          take: 1,
+        },
         client: { select: { id: true, name: true, company: true } },
       },
     });
@@ -113,12 +116,13 @@ async function getManagerDashboard(req, res, next) {
     };
 
     campaigns.forEach(c => {
-      if (c.currentMetrics) {
-        summary.impressions += c.currentMetrics.impressions || 0;
-        summary.clicks += c.currentMetrics.clicks || 0;
-        summary.cost += c.currentMetrics.cost || 0;
-        summary.conversions += c.currentMetrics.conversions || 0;
-        summary.conversionValue += c.currentMetrics.conversionValue || 0;
+      const latestMetric = c.metrics?.[0];
+      if (latestMetric) {
+        summary.impressions += latestMetric.impressions || 0;
+        summary.clicks += latestMetric.clicks || 0;
+        summary.cost += parseFloat(latestMetric.cost) || 0;
+        summary.conversions += parseFloat(latestMetric.conversions) || 0;
+        summary.conversionValue += parseFloat(latestMetric.conversionValue) || 0;
       }
     });
 
@@ -128,15 +132,21 @@ async function getManagerDashboard(req, res, next) {
 
     // Top campanhas
     const topCampaigns = campaigns
-      .filter(c => c.currentMetrics)
-      .map(c => ({
-        id: c.id,
-        name: c.name,
-        client: c.client,
-        conversions: c.currentMetrics.conversions,
-        roas: c.currentMetrics.roas,
-        cost: c.currentMetrics.cost,
-      }))
+      .filter(c => c.metrics?.length > 0)
+      .map(c => {
+        const m = c.metrics[0];
+        return {
+          id: c.id,
+          name: c.name,
+          client: c.client,
+          client_company: c.client?.company || c.client?.name,
+          conversions: parseFloat(m.conversions) || 0,
+          roas: parseFloat(m.roas) || 0,
+          cost: parseFloat(m.cost) || 0,
+          conversion_value: parseFloat(m.conversionValue) || 0,
+          ctr: parseFloat(m.ctr) || 0,
+        };
+      })
       .sort((a, b) => b.roas - a.roas)
       .slice(0, 5);
 
@@ -151,15 +161,65 @@ async function getManagerDashboard(req, res, next) {
       },
     });
 
+    // Buscar métricas diárias para gráficos
+    const campaignIds = campaigns.map(c => c.id);
+    const dailyMetricsRaw = await prisma.campaignMetric.findMany({
+      where: {
+        campaignId: { in: campaignIds },
+        date: { gte: startDate },
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    // Agrupar métricas por data
+    const metricsMap = new Map();
+    dailyMetricsRaw.forEach(m => {
+      const dateKey = m.date.toISOString().split('T')[0];
+      if (!metricsMap.has(dateKey)) {
+        metricsMap.set(dateKey, {
+          date: dateKey,
+          cost: 0,
+          conversion_value: 0,
+          conversions: 0,
+          clicks: 0,
+          impressions: 0,
+        });
+      }
+      const entry = metricsMap.get(dateKey);
+      entry.cost += parseFloat(m.cost) || 0;
+      entry.conversion_value += parseFloat(m.conversionValue) || 0;
+      entry.conversions += parseFloat(m.conversions) || 0;
+      entry.clicks += m.clicks || 0;
+      entry.impressions += m.impressions || 0;
+    });
+    const dailyMetrics = Array.from(metricsMap.values());
+
+    // Calcular distribuição de ROAS
+    const roasDistribution = {
+      excellent: 0, // > 4
+      good: 0,      // 2-4
+      average: 0,   // 1-2
+      poor: 0,      // < 1
+    };
+    campaigns.forEach(c => {
+      const roas = c.metrics?.[0] ? parseFloat(c.metrics[0].roas) : 0;
+      if (roas >= 4) roasDistribution.excellent++;
+      else if (roas >= 2) roasDistribution.good++;
+      else if (roas >= 1) roasDistribution.average++;
+      else roasDistribution.poor++;
+    });
+
     res.json({
       success: true,
       data: {
         summary,
         topCampaigns,
+        dailyMetrics,
+        roasDistribution,
         counts: {
-          totalClients: clients.length,
-          totalCampaigns: campaigns.length,
-          activeCampaigns,
+          total_clients: clients.length,
+          total_campaigns: campaigns.length,
+          active_campaigns: activeCampaigns,
         },
         unreadAlerts,
         period,
