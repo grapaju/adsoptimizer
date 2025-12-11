@@ -18,7 +18,9 @@ async function main() {
 
   const manager = await prisma.user.upsert({
     where: { email: 'manager@adsoptimizer.com' },
-    update: {},
+    update: {
+      password: hashedPassword, // Sempre atualiza a senha para garantir acesso
+    },
     create: {
       email: 'manager@adsoptimizer.com',
       password: hashedPassword,
