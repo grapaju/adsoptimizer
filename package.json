@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "AdsOptimizer - Sistema de otimização de campanhas Google Ads",
   "scripts": {
-    "build": "cd frontend && npm install --include=dev && npm run build && cd ../backend && npm install && npx prisma generate && npx prisma db push",
+    "build": "cd frontend && npm install --include=dev && npm run build && cd ../backend && npm install && npx prisma generate && npx prisma db push && node prisma/seed.js",
     "start": "cd backend && npm start",
-    "db:seed": "cd backend && node prisma/seed.js",
     "postinstall": "echo 'Postinstall complete'"
   },
   "engines": {
