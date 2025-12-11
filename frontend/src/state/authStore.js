@@ -15,7 +15,7 @@ export const useAuthStore = create(
         set({ isLoading: true, error: null });
         try {
           const response = await api.post('/auth/login', { email, password });
-          const { user, token } = response.data;
+          const { user, token } = response.data.data || response.data;
           
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           
@@ -30,9 +30,9 @@ export const useAuthStore = create(
         } catch (error) {
           set({ 
             isLoading: false, 
-            error: error.response?.data?.error || 'Erro ao fazer login' 
+            error: error.response?.data?.message || error.response?.data?.error || 'Erro ao fazer login' 
           });
-          return { success: false, error: error.response?.data?.error };
+          return { success: false, error: error.response?.data?.message || error.response?.data?.error };
         }
       },
 
@@ -40,7 +40,7 @@ export const useAuthStore = create(
         set({ isLoading: true, error: null });
         try {
           const response = await api.post('/auth/register', data);
-          const { user, token } = response.data;
+          const { user, token } = response.data.data || response.data;
           
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           
@@ -55,9 +55,9 @@ export const useAuthStore = create(
         } catch (error) {
           set({ 
             isLoading: false, 
-            error: error.response?.data?.error || 'Erro ao registrar' 
+            error: error.response?.data?.message || error.response?.data?.error || 'Erro ao registrar' 
           });
-          return { success: false, error: error.response?.data?.error };
+          return { success: false, error: error.response?.data?.message || error.response?.data?.error };
         }
       },
 
