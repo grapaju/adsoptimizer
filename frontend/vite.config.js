@@ -10,7 +10,7 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 1000, // 1MB limit
+    chunkSizeWarningLimit: 2000, // 2MB limit
   },
   server: {
     port: 5173,
