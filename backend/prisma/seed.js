@@ -189,23 +189,37 @@ async function main() {
   console.log('✅ Recomendação criada');
 
   // ---------------------------------------------------------------------------
-  // 8. Criar mensagens de chat de exemplo
+  // 8. Criar conversa e mensagens de chat de exemplo
   // ---------------------------------------------------------------------------
+  const conversation = await prisma.chatConversation.upsert({
+    where: {
+      managerId_clientId: {
+        managerId: manager.id,
+        clientId: client.id,
+      },
+    },
+    update: {},
+    create: {
+      managerId: manager.id,
+      clientId: client.id,
+    },
+  });
+
   await prisma.chatMessage.createMany({
     data: [
       {
         content: 'Olá! Vi que a campanha está indo bem. Podemos aumentar o orçamento?',
         senderId: manager.id,
-        clientId: client.id,
+        conversationId: conversation.id,
       },
       {
         content: 'Claro! Qual valor você sugere?',
         senderId: manager.id,
-        clientId: client.id,
+        conversationId: conversation.id,
       },
     ],
   });
-  console.log('✅ Mensagens de chat criadas');
+  console.log('✅ Conversa e mensagens de chat criadas');
 
   console.log('\n✨ Seed concluído com sucesso!');
   console.log('\n📋 Credenciais de acesso:');
