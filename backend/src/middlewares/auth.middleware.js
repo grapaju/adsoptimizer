@@ -38,7 +38,7 @@ const authMiddleware = async (req, res, next) => {
       
       // Busca usuário no banco usando Prisma
       const user = await prisma.user.findUnique({
-        where: { id: decoded.userId },
+        where: { id: decoded.id },
         select: {
           id: true,
           email: true,
