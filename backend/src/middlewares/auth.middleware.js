@@ -45,8 +45,8 @@ const authMiddleware = async (req, res, next) => {
           name: true,
           role: true,
           company: true,
-          managerId: true,
-          googleAdsCustomerId: true,
+          phone: true,
+          avatar: true,
           isActive: true
         }
       });
