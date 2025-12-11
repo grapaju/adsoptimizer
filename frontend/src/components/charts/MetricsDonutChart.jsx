@@ -109,7 +109,7 @@ const MetricsDonutChart = ({
             paddingAngle={2}
             dataKey="value"
           >
-            {data.map((entry, index) => (
+            {chartData.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
                 fill={entry.color || colors[index % colors.length]}
