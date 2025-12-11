@@ -5,7 +5,7 @@
 
 import prisma from '../lib/prisma.js';
 import { sendAlertEmail } from './email.service.js';
-import { socketService } from './socket.service.js';
+import socketService from './socket.service.js';
 
 // =============================================================================
 // CONSTANTES - Thresholds padrão para detecção de alertas
