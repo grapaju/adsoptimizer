@@ -45,7 +45,7 @@ function App() {
 
   const getDefaultRoute = () => {
     if (!isAuthenticated) return '/login';
-    return user?.role === 'manager' ? '/manager/dashboard' : '/client/dashboard';
+    return user?.role?.toUpperCase() === 'MANAGER' ? '/manager/dashboard' : '/client/dashboard';
   };
 
   return (
@@ -63,7 +63,7 @@ function App() {
       <Route
         path="/manager"
         element={
-          <ProtectedRoute allowedRoles={['manager']}>
+          <ProtectedRoute allowedRoles={['MANAGER']}>
             <DashboardLayout />
           </ProtectedRoute>
         }
@@ -88,7 +88,7 @@ function App() {
       <Route
         path="/client"
         element={
-          <ProtectedRoute allowedRoles={['client']}>
+          <ProtectedRoute allowedRoles={['CLIENT']}>
             <DashboardLayout />
           </ProtectedRoute>
         }

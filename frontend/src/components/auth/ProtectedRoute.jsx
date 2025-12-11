@@ -8,9 +8,11 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
+  const userRole = user?.role?.toUpperCase();
+  
+  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
     // Redirect to appropriate dashboard based on role
-    const redirectPath = user?.role === 'manager' ? '/manager/dashboard' : '/client/dashboard';
+    const redirectPath = userRole === 'MANAGER' ? '/manager/dashboard' : '/client/dashboard';
     return <Navigate to={redirectPath} replace />;
   }
 
