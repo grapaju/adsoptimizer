@@ -138,44 +138,6 @@ export async function getRecommendations(req, res, next) {
 }
 
 /**
- * POST /ai/analyze-assets/:campaignId
- * Analisa assets de uma campanha
- */
-async function analyzeAssets(req, res, next) {
-  try {
-    const { campaignId } = req.params;
-
-    const analysis = await aiService.analyzeAssets(parseInt(campaignId));
-
-    res.json({
-      success: true,
-      data: analysis,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-/**
- * POST /ai/suggest-ads/:campaignId
- * Sugere novos anúncios baseado no desempenho
- */
-async function suggestAds(req, res, next) {
-  try {
-    const { campaignId } = req.params;
-
-    const suggestions = await aiService.suggestAds(parseInt(campaignId));
-
-    res.json({
-      success: true,
-      data: suggestions,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-/**
  * POST /ai/generate-ads
  * Gera sugestões completas de anúncios
  */
